@@ -10,7 +10,6 @@ $CheckProcess = Get-Process | Where-Object {$_.ProcessName -eq $ProcessName}
 If(isWorkDay){
 	If($CheckProcess -eq $null){
 		Write-Host "Prozess wird aktuell NICHT ausgeführt"
-		$var = hasWrittenToday
 		If(hasWrittenToday){
 			Break
 		} 
@@ -25,17 +24,18 @@ If(isWorkDay){
 	}
 }
 
+# Prüfen ob heute schon ein valider Eintrag vorgenommen wurde. Wenn 
 function hasWrittenToday{
 	$out = Get-Content $file | select -Last 1
+	# TODO NullString
 	If($out){
 			$dateInFile = [datetime]::ParseExact($out,'dddd dd/MM/yyyy HH:mm',$null)
-			If($dateInFile -lt 9 -or $hour -gt 15){
-				
+			If($dateInFile.hour -lt 9 -or $dateInFile.hour -gt 14){
 				return $false
 				} 
 				else 
 				{
-					return $true
+				return $true
 				}
 		}
 }
