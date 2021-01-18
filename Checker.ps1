@@ -31,20 +31,18 @@ function hasWrittenToday{
 	If($out){
 		$var  = [datetime]::ParseExact($dateOutput,'dddd dd/MM/yyyy HH:mm',$null)
 		$dateInFile = [datetime]::ParseExact($out,'dddd dd/MM/yyyy HH:mm',$null)
-			If($var.Day -ne $dateInFile.Day){
-				Add-Content -path $file -value '`n'
-			} else {
-				If($dateInFile.hour -lt 9 -and $dateInFile.hour -gt 14){
+			If($var.hour -gt 14 -and $var.Day -ne $dateInFile.Day){
+					Write-Host 'Return hasWrittenToday #1 false'
 					return $false
 					} 
 					else
 					{
-						
+					Write-Host 'Return hasWrittenToday True'
 					return $true
 				}
-			}
 		}
 }
+
 
 function fileExists(){
 	If (Test-Path $file)
@@ -56,7 +54,7 @@ function fileExists(){
 
 # Überprüfe ob Werktag
 function isWorkDay{
-	If($day -notcontains ('Samstag' -or 'Sonntag')){
+	If($dateOutput.Day -ne ("Samstag" -or "Sonntag")){
 		return $true
 }else {
 	return $false
