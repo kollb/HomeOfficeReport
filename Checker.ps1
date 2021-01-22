@@ -27,18 +27,34 @@ If(isWorkDay){
 # Prüfen ob heute schon ein valider Eintrag vorgenommen wurde. Wenn 
 function hasWrittenToday{
 	$out = Get-Content $file | select -Last 1
+	$test = Get-Content $file | select -Last 3
 	# TODO NullString
 	If($out){
 		$var  = [datetime]::ParseExact($dateOutput,'dddd dd/MM/yyyy HH:mm',$null)
 		$dateInFile = [datetime]::ParseExact($out,'dddd dd/MM/yyyy HH:mm',$null)
-			If($var.hour -gt 14 -and $var.Day -ne $dateInFile.Day){
-					Write-Host 'Return hasWrittenToday #1 false'
-					return $false
-					} 
-					else
-					{
-					Write-Host 'Return hasWrittenToday True'
-					return $true
+		$testDateInFile = @()
+		foreach($i in $test){
+			$testDateInFile += [datetime]::ParseExact($i,'dddd dd/MM/yyyy HH:mm',$null)
+		}
+		$temp = 0
+		foreach($i in $testDateInFile){
+		if($i.Day -eq $var.Day){$temp +=1}
+		}
+		Write-Host "Temp:"
+		Write-Host $temp
+		Write-Host "$var.hour -gt 14:"
+		$1 =$var.hour -gt 14
+		Write-Host $1
+		
+		if($temp -eq 3){return $true}
+		If($var.hour -gt 14){
+				Write-Host 'Return hasWrittenToday #1 false'
+				return $false
+				} 
+				else
+				{
+				Write-Host 'Return hasWrittenToday True'
+				return $true
 				}
 		}
 }
