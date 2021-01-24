@@ -2,6 +2,7 @@ $ProcessName = 'CDViewer'
 $day = Get-Date -format dddd
 $dateOutput = Get-Date -Format 'dddd dd/MM/yyyy HH:mm'
 $file='.\log.txt'
+$var  = [datetime]::ParseExact($dateOutput,'dddd dd/MM/yyyy HH:mm',$null)
 
 # Prüfen ob ein Programm ausgeführt wird
 function Check()
@@ -30,12 +31,13 @@ function hasWrittenToday{
 	$test = Get-Content $file | select -Last 3
 	# TODO NullString
 	If($out){
-		$var  = [datetime]::ParseExact($dateOutput,'dddd dd/MM/yyyy HH:mm',$null)
 		$dateInFile = [datetime]::ParseExact($out,'dddd dd/MM/yyyy HH:mm',$null)
 		$testDateInFile = @()
 		foreach($i in $test){
 			$testDateInFile += [datetime]::ParseExact($i,'dddd dd/MM/yyyy HH:mm',$null)
 		}
+		
+		if($i.Day -ne $var.Day){Add-Content -path $file -value '------------'}
 		$temp = 0
 		foreach($i in $testDateInFile){
 		if($i.Day -eq $var.Day){$temp +=1}
@@ -70,9 +72,12 @@ function fileExists(){
 
 # Überprüfe ob Werktag
 function isWorkDay{
-	If($dateOutput.Day -ne ("Samstag" -or "Sonntag")){
+	$businessDayNames = @("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+	If($var.DayOfWeek -in $businessDayNames){
+		Write-Host 'Is Workday'
 		return $true
 }else {
+	Write-Host 'Is Not Workday'
 	return $false
 	}
 }
