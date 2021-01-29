@@ -1,8 +1,10 @@
 $ProcessName = 'CDViewer'
 $day = Get-Date -format dddd
 $dateOutput = Get-Date -Format 'dddd dd/MM/yyyy HH:mm'
-$file='.\log.txt'
 $var  = [datetime]::ParseExact($dateOutput,'dddd dd/MM/yyyy HH:mm',$null)
+$month = Get-Date -UFormat %B
+$year = Get-Date -UFormat %Y
+$filePath=".\$year-$month.txt"
 
 # Prüfen ob ein Programm ausgeführt wird
 function Check()
@@ -16,7 +18,7 @@ If(isWorkDay){
 		} 
 		else
 			{
-				Add-Content -path $file -value $dateOutput
+				Add-Content -path $filePath -value $dateOutput
 			}
 		} 
 	else 	{
@@ -25,19 +27,26 @@ If(isWorkDay){
 	}
 }
 
-# Prüfen ob heute schon ein valider Eintrag vorgenommen wurde. Wenn 
+# Prüfen ob heute schon ein valider Eintrag vorgenommen wurde.  
 function hasWrittenToday{
-	$out = Get-Content $file | select -Last 1
-	$test = Get-Content $file | select -Last 3
+	$out = Get-Content $filePath | select -Last 1
+	$test = Get-Content $filePath | select -Last 3
 	# TODO NullString
 	If($out){
 		$dateInFile = [datetime]::ParseExact($out,'dddd dd/MM/yyyy HH:mm',$null)
 		$testDateInFile = @()
 		foreach($i in $test){
+			If($i -like "----------------------------"){
+				Write-Host 'Geskipped'
+				continue}
 			$testDateInFile += [datetime]::ParseExact($i,'dddd dd/MM/yyyy HH:mm',$null)
 		}
-		
-		if($i.Day -ne $var.Day){Add-Content -path $file -value '------------'}
+		# New Week
+		$newWeek = @("Monday")
+		$lastWeek = @("Friday")
+		if($var.DayOfWeek -in $newWeek -and $testDateInFile[-1].DayOfWeek -in $lastWeek){
+			Add-Content -path $filePath -value '----------------------------'
+			}
 		$temp = 0
 		foreach($i in $testDateInFile){
 		if($i.Day -eq $var.Day){$temp +=1}
@@ -63,10 +72,10 @@ function hasWrittenToday{
 
 
 function fileExists(){
-	If (Test-Path $file)
+	If (Test-Path $filePath)
 	{} else
 	{
-    out-file $file
+    out-file $filePath
 	}
 }
 
